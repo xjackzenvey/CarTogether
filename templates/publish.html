@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布拼车信息</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 头部 -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">发布拼车信息</h1>
+            <p class="text-gray-600">填写您的出行信息，寻找同行伙伴</p>
+        </header>
+
+        <!-- 发布表单 -->
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
+            <form id="publishForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 出发地 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">出发地 *</label>
+                        <select id="departure" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">请选择出发地</option>
+                            <option value="本部">本部</option>
+                            <option value="净月">净月</option>
+                        </select>
+                    </div>
+
+                    <!-- 目的地 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">目的地 *</label>
+                        <select id="destination" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">请选择目的地</option>
+                            <option value="长春站">长春站</option>
+                            <option value="长春西站">长春西站</option>
+                            <option value="龙嘉机场">龙嘉机场</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 出行日期 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">出行日期 *</label>
+                        <input type="date" id="travelDate" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <!-- 出行时间 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">出行时间 *</label>
+                        <input type="time" id="travelTime" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- 详细信息 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">详细信息</label>
+                    <textarea id="details" rows="4" placeholder="请描述您的具体需求，如人数、行李数量、特殊要求等..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+
+                <!-- 联系方式 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">联系方式类型 *</label>
+                        <select id="contactType" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">请选择联系方式类型</option>
+                            <option value="微信号">微信号</option>
+                            <option value="QQ号">QQ号</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">联系信息 *</label>
+                        <input type="text" id="contactInfo" required placeholder="请输入您的微信号或QQ号" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- 昵称 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">昵称 *</label>
+                    <input type="text" id="nickname" required placeholder="请输入您的昵称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="flex justify-between">
+                    <div class="space-x-2">
+                        <a href="/" class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition duration-200">
+                            返回首页
+                        </a>
+                        <a href="/my_requests" class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition duration-200">
+                            我的请求
+                        </a>
+                    </div>
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-200">
+                        发布拼车信息
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 生成或获取用户ID
+        function getUserId() {
+            let userId = localStorage.getItem('userId');
+            if (!userId) {
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('userId', userId);
+            }
+            return userId;
+        }
+
+        // 自动填充从URL参数获取的值
+        function autoFillFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            const departure = urlParams.get('departure');
+            const destination = urlParams.get('destination');
+            const travelDate = urlParams.get('travelDate');
+            const travelTime = urlParams.get('travelTime');
+            
+            if (departure) document.getElementById('departure').value = departure;
+            if (destination) document.getElementById('destination').value = destination;
+            if (travelDate) document.getElementById('travelDate').value = travelDate;
+            if (travelTime) document.getElementById('travelTime').value = travelTime;
+        }
+
+
+        // 表单提交
+        document.getElementById('publishForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                user_id: getUserId(),
+                departure: document.getElementById('departure').value,
+                destination: document.getElementById('destination').value,
+                travel_date: document.getElementById('travelDate').value,
+                travel_time: document.getElementById('travelTime').value,
+                details: document.getElementById('details').value,
+                contact_type: document.getElementById('contactType').value,
+                contact_info: document.getElementById('contactInfo').value,
+                nickname: document.getElementById('nickname').value
+            };
+            
+            // 验证必填字段
+            for (let key in formData) {
+                if (key !== 'details' && !formData[key]) {
+                    alert('请填写所有必填字段');
+                    return;
+                }
+            }
+            
+            try {
+                const response = await fetch('/submit_request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('拼车信息发布成功！');
+                    window.location.href = '/';
+                } else {
+                    alert('发布失败，请重试');
+                }
+            } catch (error) {
+                console.error('发布失败:', error);
+                alert('发布失败，请重试');
+            }
+        });
+
+        // 页面加载时自动填充
+        autoFillFromURL();
+        
+        // 设置今天的日期为默认值（如果没有URL参数）
+        if (!document.getElementById('travelDate').value) {
+            document.getElementById('travelDate').valueAsDate = new Date();
+        }
+    </script>
+</body>
+</html>

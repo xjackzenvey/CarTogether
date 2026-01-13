@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的拼车请求</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 头部 -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">我的拼车请求</h1>
+            <p class="text-gray-600">管理您发布的所有拼车信息</p>
+            <div class="mt-4">
+                <a href="/" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200 mr-2">
+                    返回首页
+                </a>
+                <a href="/publish" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-200">
+                    发布新请求
+                </a>
+            </div>
+        </header>
+
+        <!-- 用户ID显示 -->
+        <div class="max-w-4xl mx-auto mb-6">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p class="text-blue-800">
+                    <span class="font-medium">用户ID:</span> 
+                    <span id="userIdDisplay" class="font-mono text-sm"></span>
+                </p>
+            </div>
+        </div>
+
+        <!-- 拼车请求列表 -->
+        <div class="max-w-4xl mx-auto">
+            <div id="requestsList" class="space-y-4">
+                <!-- 请求列表将在这里显示 -->
+            </div>
+            
+            <!-- 无请求提示 -->
+            <div id="noRequests" class="hidden text-center py-12">
+                <div class="bg-gray-50 rounded-lg p-8">
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">暂无拼车请求</h3>
+                    <p class="text-gray-600 mb-4">您还没有发布任何拼车信息</p>
+                    <a href="/publish" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-200">
+                        发布拼车信息
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 max-w-2xl shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">编辑拼车请求</h3>
+                <form id="editForm" class="space-y-4">
+                    <input type="hidden" id="editRequestId">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">出发地</label>
+                            <select id="editDeparture" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="本部">本部</option>
+                                <option value="净月">净月</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">目的地</label>
+                            <select id="editDestination" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="长春站">长春站</option>
+                                <option value="长春西站">长春西站</option>
+                                <option value="龙嘉机场">龙嘉机场</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">出行日期</label>
+                            <input type="date" id="editTravelDate" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">出行时间</label>
+                            <input type="time" id="editTravelTime" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">详细信息</label>
+                        <textarea id="editDetails" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">联系方式类型</label>
+                            <select id="editContactType" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="微信号">微信号</option>
+                                <option value="QQ号">QQ号</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">联系信息</label>
+                            <input type="text" id="editContactInfo" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">昵称</label>
+                        <input type="text" id="editNickname" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" onclick="closeEditModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-200">
+                            取消
+                        </button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">
+                            保存修改
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 生成或获取用户ID
+        function getUserId() {
+            let userId = localStorage.getItem('userId');
+            if (!userId) {
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('userId', userId);
+            }
+            return userId;
+        }
+
+        // 显示用户ID
+        document.getElementById('userIdDisplay').textContent = getUserId();
+
+        // 加载用户的拼车请求
+        async function loadMyRequests() {
+            try {
+                const response = await fetch('/get_my_requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: getUserId()
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayRequests(data.requests);
+                } else {
+                    alert('加载失败：' + data.error);
+                }
+            } catch (error) {
+                console.error('加载失败:', error);
+                alert('加载失败，请重试');
+            }
+        }
+
+        // 显示请求列表
+        function displayRequests(requests) {
+            const requestsList = document.getElementById('requestsList');
+            const noRequests = document.getElementById('noRequests');
+            
+            if (requests.length === 0) {
+                requestsList.innerHTML = '';
+                noRequests.classList.remove('hidden');
+            } else {
+                noRequests.classList.add('hidden');
+                requestsList.innerHTML = requests.map(request => createRequestCard(request)).join('');
+            }
+        }
+
+        // 创建请求卡片
+        function createRequestCard(request) {
+            return `
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">${request.nickname}</h3>
+                            <p class="text-sm text-gray-600">${request.departure} → ${request.destination}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editRequest(${request.id})" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition duration-200">
+                                编辑
+                            </button>
+                            <button onclick="deleteRequest(${request.id})" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition duration-200">
+                                删除
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">出行日期</p>
+                            <p class="font-medium">${request.travel_date}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">出行时间</p>
+                            <p class="font-medium">${request.travel_time}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500 mb-1">详细信息</p>
+                        <p class="text-gray-700">${request.details || '暂无详细信息'}</p>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <p class="text-sm text-gray-500 mb-1">联系方式</p>
+                        <p class="text-gray-700">
+                            <span class="font-medium">${request.contact_type}:</span> ${request.contact_info}
+                        </p>
+                    </div>
+                    
+                    <div class="mt-4 text-xs text-gray-500">
+                        发布时间: ${new Date(request.created_at).toLocaleString('zh-CN')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 删除请求
+        async function deleteRequest(requestId) {
+            if (!confirm('确定要删除这个拼车请求吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/delete_request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        request_id: requestId,
+                        user_id: getUserId()
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('删除成功');
+                    loadMyRequests();
+                } else {
+                    alert('删除失败：' + data.error);
+                }
+            } catch (error) {
+                console.error('删除失败:', error);
+                alert('删除失败，请重试');
+            }
+        }
+
+        // 编辑请求
+        function editRequest(requestId) {
+            // 获取请求数据
+            const cards = document.querySelectorAll('.bg-white.rounded-lg.shadow-md');
+            let requestCard = null;
+            
+            for (let card of cards) {
+                if (card.innerHTML.includes(`deleteRequest(${requestId})`)) {
+                    requestCard = card;
+                    break;
+                }
+            }
+            
+            if (!requestCard) return;
+
+            // 获取卡片中的数据
+            const nickname = requestCard.querySelector('h3').textContent;
+            const routeText = requestCard.querySelector('.text-gray-600').textContent;
+            const [departure, destination] = routeText.split(' → ');
+            
+            const dateElements = requestCard.querySelectorAll('.font-medium');
+            const travelDate = dateElements[0].textContent;
+            const travelTime = dateElements[1].textContent;
+            
+            const detailsElement = requestCard.querySelector('.text-gray-700');
+            const details = detailsElement.textContent === '暂无详细信息' ? '' : detailsElement.textContent;
+            
+            const contactElement = requestCard.querySelector('.border-t .text-gray-700');
+            const contactType = contactElement.querySelector('span').textContent.replace(':', '');
+            const contactInfo = contactElement.lastChild.textContent.trim();
+
+            // 填充编辑表单
+            document.getElementById('editRequestId').value = requestId;
+            document.getElementById('editDeparture').value = departure;
+            document.getElementById('editDestination').value = destination;
+            document.getElementById('editTravelDate').value = travelDate;
+            document.getElementById('editTravelTime').value = travelTime;
+            document.getElementById('editDetails').value = details;
+            document.getElementById('editContactType').value = contactType;
+            document.getElementById('editContactInfo').value = contactInfo;
+            document.getElementById('editNickname').value = nickname;
+            
+            // 显示模态框
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        // 关闭编辑模态框
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        // 编辑表单提交
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                request_id: document.getElementById('editRequestId').value,
+                user_id: getUserId(),
+                departure: document.getElementById('editDeparture').value,
+                destination: document.getElementById('editDestination').value,
+                travel_date: document.getElementById('editTravelDate').value,
+                travel_time: document.getElementById('editTravelTime').value,
+                details: document.getElementById('editDetails').value,
+                contact_type: document.getElementById('editContactType').value,
+                contact_info: document.getElementById('editContactInfo').value,
+                nickname: document.getElementById('editNickname').value
+            };
+            
+            try {
+                const response = await fetch('/update_request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('修改成功');
+                    closeEditModal();
+                    loadMyRequests();
+                } else {
+                    alert('修改失败：' + data.error);
+                }
+            } catch (error) {
+                console.error('修改失败:', error);
+                alert('修改失败，请重试');
+            }
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        // 页面加载时加载用户的请求
+        loadMyRequests();
+    </script>
+</body>
+</html>
